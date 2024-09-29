@@ -2,7 +2,7 @@ from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but they might need fine-tuning.
 build_exe_options = {
-    "excludes": ["numpy"],
+    "excludes": [],
     "zip_include_packages": ["matplotlib"],
 }
 
