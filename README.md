@@ -1,4 +1,2 @@
 # DAQ-Interface
-Code For Interfacing with NI DAQ
-
-To use this code make sure that 1) your DAQ is NI and compatibly with nidaqmx, 2) that you have all the right drivers and software installed (NI-MAX, NI 488.2 etc). This has specifically been tested with the NI DAQ USB-6003.
+The NFR DAQ Interface is an application that allows team members to view and parse data in a GUI setting. We will allow users to create a customizable layout to display multiple types of graphs as they choose, and they can upload data files from the car's data in order to gain insights into the car.
