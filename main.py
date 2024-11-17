@@ -26,18 +26,13 @@ class DAQInterface:
         self.root.update()
         self.button = ctk.CTkButton(master = self.root,
                                     text="Welcome to DAQ",
-                                    width=300,
-                                    height=50,
                                     command=self.test_func)
-        self.button.place(relx=0.5,rely=0.5)
+        self.button.place(relx=0.5,rely=0.5, anchor="center", relwidth=0.15, relheight = 0.1)
         self.root.mainloop()
 
     def test_func(self) -> None:
-        self.text = ctk.CTkTextbox(master = self.root,
-                                   width=300,
-                                   height=50
-                                   )
-        self.text.place(relx = 0.4, rely = 0.8)
+        self.text = ctk.CTkTextbox(master = self.root)
+        self.text.place(relx = 0.5, rely = 0.8, anchor="center", relwidth = 0.7, relheight= 0.4)
         self.root.update()
 
 if __name__ == "__main__":
