@@ -37,6 +37,7 @@ class DAQInterface:
                                    width=300,
                                    height=50
                                    )
+        self.text.place(relx = 0.4, rely = 0.8)
         self.root.update()
 
 if __name__ == "__main__":
