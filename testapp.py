@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class ctkApp:
-        
     def __init__(self):
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk()
