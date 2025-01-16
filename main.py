@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from multiWindowTest import MultiFrameApp
+from test import MultiFrameApp
 import time
 
 """
@@ -73,8 +73,8 @@ class DAQInterface(ctk.CTk):
         self.file_label.pack(pady = 20)
 
         load_data = ctk.CTkButton(self.config_screen,
-                                  text="Start",
-                                  font=('Arial', 40),
+                                  text="Load Data",
+                                  font=('Arial', 24),
                                   text_color="white",
                                   fg_color=NU_PURPLE_HEX,
                                   corner_radius=20,
@@ -82,6 +82,26 @@ class DAQInterface(ctk.CTk):
                                   height=40,
                                   command=self.load_file)
         load_data.pack()
+
+        launch_button = ctk.CTkButton(self.config_screen,
+                                  text="Launch Interface",
+                                  font=('Arial', 40),
+                                  text_color="white",
+                                  fg_color=NU_PURPLE_HEX,
+                                  corner_radius=20,
+                                  width=250,
+                                  height=40,
+                                  command=self.launch_interface)
+        
+        launch_button.pack(pady = 50)
+
+    def launch_interface(self):
+        time.sleep(0.4)
+        self.config_screen.destroy()
+
+        self.app = MultiFrameApp()
+        self.app.mainloop()
+
     
     def load_file(self):
         # Open a file dialog to select a file
@@ -95,33 +115,7 @@ class DAQInterface(ctk.CTk):
             self.file_label.configure(text=f"Selected File: {file_path}")
         else:
             self.file_label.configure(text="No file selected")
-            
-class DAQInterface:
-    def __init__(self) -> None:
-        ctk.set_appearance_mode("dark")
-        self.root = ctk.CTk()
-        self.root.geometry("800x500")
-        self.root.title("NFR DAQ Interface")
-        self.root.update()
-        self.button = ctk.CTkButton(master = self.root,
-                                    text="Welcome to DAQ",
-                                    command=self.create_graph_app)
-        self.button.place(relx=0.5,rely=0.5, anchor="center", relwidth=0.15, relheight = 0.1)
-        self.root.mainloop()
 
-    def test_func(self) -> None:
-        self.text = ctk.CTkTextbox(master = self.root)
-        self.text.place(relx = 0.5, rely = 0.8, anchor="center", relwidth = 0.7, relheight= 0.4)
-        self.root.update()
-
-    def create_graph_app(self):
-        # Create a new window for GraphApp
-        graph_window = ctk.CTkToplevel(self)
-        graph_window.title("Graph Application")
-        graph_window.geometry("800x600")
-        
-        # Instantiate GraphApp in the new window
-        graph_app = MultiFrameApp()
 
 if __name__ == "__main__":
     app = DAQInterface()
