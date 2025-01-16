@@ -98,10 +98,8 @@ class DAQInterface(ctk.CTk):
     def launch_interface(self):
         time.sleep(0.4)
         self.config_screen.destroy()
-
         self.app = MultiFrameApp()
         self.app.mainloop()
-
     
     def load_file(self):
         # Open a file dialog to select a file
