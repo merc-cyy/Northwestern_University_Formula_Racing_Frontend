@@ -28,7 +28,7 @@ class DAQInterface(ctk.CTk):
         ctk.set_appearance_mode('dark')
         self.title("NFR DAQ Interface")
         self.geometry("900x700")
-
+        self.data_file_path = None
         self.create_app()
 
     def create_app(self):
@@ -96,10 +96,11 @@ class DAQInterface(ctk.CTk):
         launch_button.pack(pady = 50)
 
     def launch_interface(self):
-        time.sleep(0.4)
-        self.config_screen.destroy()
-        self.app = MultiFrameApp()
-        self.app.mainloop()
+        if self.data_file_path:
+            time.sleep(0.4)
+            self.config_screen.destroy()
+            self.app = MultiFrameApp()
+            self.app.mainloop()
     
     def load_file(self):
         # Open a file dialog to select a file
@@ -113,6 +114,8 @@ class DAQInterface(ctk.CTk):
             self.file_label.configure(text=f"Selected File: {file_path}")
         else:
             self.file_label.configure(text="No file selected")
+
+        self.data_file_path = file_path
 
 
 if __name__ == "__main__":
