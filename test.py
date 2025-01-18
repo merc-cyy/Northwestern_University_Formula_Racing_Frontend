@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
 
+NU_PURPLE_HEX = "#4E2A84"
+
 class MultiFrameApp(ctk.CTk):
     def __init__(self) -> None:
         ctk.set_appearance_mode("dark")
@@ -34,13 +36,13 @@ class MultiFrameApp(ctk.CTk):
         # layout frame
         self.layout_frame = ctk.CTkFrame(self.side_bar, width=100)
         self.layout_frame.pack(side='top', pady=(0,10))
-        self.master_layout_button = ctk.CTkButton(self.layout_frame, text="Layout", command=self.layout_show)
+        self.master_layout_button = ctk.CTkButton(self.layout_frame, text="Layout", command=self.layout_show, fg_color=NU_PURPLE_HEX)
         self.master_layout_button.pack(pady=10, padx=10, fill="x")
 
         #graph choices frame
         self.graph_frame = ctk.CTkFrame(self.side_bar, width=100)
         self.graph_frame.pack(side='top')
-        self.master_graph_button = ctk.CTkButton(self.graph_frame, text="Graphs", command=self.graph_show)
+        self.master_graph_button = ctk.CTkButton(self.graph_frame, text="Graphs", command=self.graph_show, fg_color=NU_PURPLE_HEX)
         self.master_graph_button.pack(pady=10, padx=10, fill="x")
 
         #graph state
@@ -54,10 +56,10 @@ class MultiFrameApp(ctk.CTk):
                 return
             self.current_layout_button = "layout displayed"
     
-            ctk.CTkButton(self.layout_frame, text="1-Frame Layout", fg_color= 'light blue', text_color='black', command=self.show_one_frame).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="2-Frame Layout", fg_color= 'light blue', text_color='black', command=self.show_two_frames).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="3-Frame Layout", fg_color= 'light blue', text_color='black', command=self.show_three_frames).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="4-Frame Layout", fg_color= 'light blue', text_color='black', command=self.show_four_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="1-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_one_frame).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="2-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_two_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="3-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_three_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="4-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_four_frames).pack(pady=10, padx=10, fill="x")
            
 
     def clear_layout_buttons(self):
@@ -92,7 +94,7 @@ class MultiFrameApp(ctk.CTk):
         self.current_layout = "1-frame"
         self.clear_main_content()
 
-        frame = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color="blue")
+        frame = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
         frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         ctk.CTkLabel(frame, text="Single Frame", font=("Arial", 16)).pack(pady=10)
@@ -103,14 +105,14 @@ class MultiFrameApp(ctk.CTk):
         self.current_layout = "2-frame"
         self.clear_main_content()
 
-        frame1 = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color="blue")
-        frame2 = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color="red")
+        self.frame1 = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
+        self.frame2 = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color="white")
 
-        frame1.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-        frame2.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame1.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame2.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
-        ctk.CTkLabel(frame1, text="Frame A", font=("Arial", 16)).pack(pady=10)
-        ctk.CTkLabel(frame2, text="Frame B", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame1, text="Frame A", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame2, text="Frame B", font=("Arial", 16)).pack(pady=10)
 
     def show_three_frames(self):
         if self.current_layout == "3-frame":
@@ -118,14 +120,14 @@ class MultiFrameApp(ctk.CTk):
         self.current_layout = "3-frame"
         self.clear_main_content()
 
-        left_frame = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color="blue")
+        left_frame = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
         right_container = ctk.CTkFrame(self.main_content)
 
         left_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
         right_container.pack(side="right", fill="both", expand=True)
 
-        top_right_frame = ctk.CTkFrame(right_container, corner_radius=10, border_width=2, border_color="red")
-        bottom_right_frame = ctk.CTkFrame(right_container, corner_radius=10, border_width=2, border_color="green")
+        top_right_frame = ctk.CTkFrame(right_container, corner_radius=10, border_width=2, border_color="white")
+        bottom_right_frame = ctk.CTkFrame(right_container, corner_radius=10, border_width=2, border_color="silver")
 
         top_right_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
         bottom_right_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
@@ -147,20 +149,20 @@ class MultiFrameApp(ctk.CTk):
         top_row.pack(side="top", fill="both", expand=True)
         bottom_row.pack(side="top", fill="both", expand=True)
 
-        frame1 = ctk.CTkFrame(top_row, corner_radius=10, border_width=2, border_color="blue")
-        frame2 = ctk.CTkFrame(top_row, corner_radius=10, border_width=2, border_color="red")
-        frame3 = ctk.CTkFrame(bottom_row, corner_radius=10, border_width=2, border_color="green")
-        frame4 = ctk.CTkFrame(bottom_row, corner_radius=10, border_width=2, border_color="purple")
+        self.frame1 = ctk.CTkFrame(top_row, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
+        self.frame2 = ctk.CTkFrame(top_row, corner_radius=10, border_width=2, border_color="white")
+        self.frame3 = ctk.CTkFrame(bottom_row, corner_radius=10, border_width=2, border_color="white")
+        self.frame4 = ctk.CTkFrame(bottom_row, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
 
-        frame1.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-        frame2.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-        frame3.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-        frame4.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame1.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame2.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame3.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        self.frame4.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
-        ctk.CTkLabel(frame1, text="Frame 1", font=("Arial", 16)).pack(pady=10)
-        ctk.CTkLabel(frame2, text="Frame 2", font=("Arial", 16)).pack(pady=10)
-        ctk.CTkLabel(frame3, text="Frame 3", font=("Arial", 16)).pack(pady=10)
-        ctk.CTkLabel(frame4, text="Frame 4", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame1, text="Frame 1", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame2, text="Frame 2", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame3, text="Frame 3", font=("Arial", 16)).pack(pady=10)
+        ctk.CTkLabel(self.frame4, text="Frame 4", font=("Arial", 16)).pack(pady=10)
 
     def clear_main_content(self):
         for widget in self.main_content.winfo_children():
@@ -172,38 +174,56 @@ class MultiFrameApp(ctk.CTk):
             return
         else:    
             self.bar_graph_state = "Bar Graph displayed"#to avaoid multiple graphs
-            data = pd.read_csv(file_path, header=None)
+            data = pd.read_csv(file_path)
             print("Data Loaded Successfully!")
 
             # Check for required columns
-            # if x_col not in data.columns or y_col not in data.columns:
-            #     raise ValueError(f"Specified columns '{x_col}' or '{y_col}' not found in the CSV file.")
+            if x_col not in list(data.columns) or y_col not in list(data.columns):
+                raise ValueError(f"Specified columns '{x_col}' or '{y_col}' not found in the CSV file.")
             
-            plt.bar(data[x_col], data[y_col], color='blue')
-            plt.xlabel(x_col)
-            plt.ylabel(y_col)
-            plt.title("Testing title")
-            plt.savefig("TestBarGraph.png")
-            bar_image_path = "TestBarGraph.png"
-            plt.close()
+            frame_bg = (0.2,0.2,0.2)
 
+            # Create a Matplotlib figure
+            fig, ax = plt.subplots()
+            fig.patch.set_facecolor(frame_bg)  # Set figure background to match frame
+
+            # Customize plot appearance
+            ax.set_facecolor(frame_bg)  # Set axes background
+            ax.bar(data[x_col], data[y_col], color=NU_PURPLE_HEX)  # Bar color
+
+            # Set label, title, and grid colors
+            ax.set_xlabel(x_col, color="white")
+            ax.set_ylabel(y_col, color="white")
+            ax.set_title("Testing Title", color="white")
+
+            # Set tick colors
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+
+            # Remove spines or set them to white
+            for spine in ax.spines.values():
+                spine.set_color("white")
+
+            bar_image_path = "Graphs/TestBarGraph.png"
+            fig.savefig(bar_image_path)
+            plt.close()
             return bar_image_path
 
-    def display_image_on_frame(self, frame, image_path=None):
+    def display_image_on_frame(self, frame: ctk.CTkFrame, image_path=None):
             image = Image.open(image_path)
-            tk_image = ctk.CTkImage(light_image=image, dark_image=image, size=(300, 300))
-            label = ctk.CTkLabel(frame, image=tk_image, text="")
+            tk_image = ctk.CTkImage(light_image=image, dark_image=image, size=(285, 285))
+            label = ctk.CTkLabel(frame, image=tk_image, text="", width=0, height = 0)
             label.image = tk_image  # Keep a reference to avoid garbage collection
-            label.pack(fill="both")
+            frame.pack_propagate(False) # prevents frame from expanding when image is packed
+            label.pack(fill ="none", padx = 0, pady = 0)
 
 
     def display_graph(self):
-        path = 'time.csv'
-        graph_image = self.bar_graph(path, 0, 1)
+        path = 'dummy.csv'
+        graph_image = self.bar_graph(path, "name", "amount")
         
-        #to display on all frames
-        for fr in self.main_content.winfo_children():
-            self.display_image_on_frame(fr, graph_image)
+        #to display on frame1
+        self.display_image_on_frame(self.frame1, graph_image)
 
 # Run the application
 if __name__ == "__main__":
