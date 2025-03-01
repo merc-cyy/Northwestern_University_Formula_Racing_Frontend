@@ -2,6 +2,7 @@ import customtkinter as ctk
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
+import os
 
 NU_PURPLE_HEX = "#4E2A84"
 
@@ -210,6 +211,9 @@ class MultiFrameApp(ctk.CTk):
             return bar_image_path
 
     def display_image_on_frame(self, frame: ctk.CTkFrame, image_path=None):
+            if not os.path.exists(image_path):
+                print(f"Error: Image file {image_path} not found.")
+                return
             image = Image.open(image_path)
             tk_image = ctk.CTkImage(light_image=image, dark_image=image, size=(285, 285))
             label = ctk.CTkLabel(frame, image=tk_image, text="", width=0, height = 0)
