@@ -3,6 +3,7 @@ from tkinter import filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from test import MultiFrameApp
 import time
+import pandas as pd
 
 # Constants
 NU_PURPLE_HEX = "#4E2A84"
@@ -14,6 +15,7 @@ class DAQInterface(ctk.CTk):
         self.title("NFR DAQ Interface")
         self.geometry("900x700")
         self.data_file_path = None
+        self.df = None
         self.create_app()
 
     def create_app(self):
@@ -87,8 +89,31 @@ class DAQInterface(ctk.CTk):
         if self.data_file_path:
             time.sleep(0.4)
             self.config_screen.destroy()
-            self.app = MultiFrameApp()
+            self.app = MultiFrameApp(self.df)
             self.app.mainloop()
+
+    def clean(self, filepath):#convert csv to df and clean it
+        try:
+            #read in the file as a pandas DataFrame and pass it in to the window
+            df = pd.read_csv(filepath)
+            timestamp_col = df.columns[0]#get timestmap col
+
+            df[timestamp_col] = pd.to_datetime(df[timestamp_col], errors='coerce')#convert timestamps to datetime
+            df = df.dropna(subset=[timestamp_col])#drop rows iwth invalid time
+
+            # For each data column, convert to numeric and fill missing values with the mean
+            data_columns = df.columns[1:]  # all columns after Timestamp
+            for col in data_columns:
+                # Convert column to numeric; invalid values become NaN
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+                # Fill NaN values with the mean of the column
+                mean_val = df[col].mean()
+                df[col].fillna(mean_val)
+            return df
+        except:
+            return None
+
+
     
     def load_file(self):
         # Open a file dialog to select a file
@@ -99,8 +124,10 @@ class DAQInterface(ctk.CTk):
 
         # Update the label with the selected file path or show "No file selected" if canceled
         if file_path:
-            self.file_label.configure(text=f"Selected File: {file_path}")
-        else:
-            self.file_label.configure(text="No file selected")
-
+            df = self.clean(file_path)  # Convert to df and clean it
+            if df is not None:
+                self.df = df
+                self.file_label.configure(text=f"Selected File: {file_path}")
+            else:
+                self.file_label.configure(text=f"Error loading file: {file_path}")
         self.data_file_path = file_path

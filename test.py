@@ -21,7 +21,7 @@ NU_PURPLE_HEX = "#4E2A84"
 
 
 class MultiFrameApp(ctk.CTk):
-    def __init__(self) -> None:
+    def __init__(self, dataframe) -> None:
         ctk.set_appearance_mode("dark")
         super().__init__()
         self.title("Multi-Frame System")
@@ -38,6 +38,9 @@ class MultiFrameApp(ctk.CTk):
         self.data_dict = {}
         self.graph_dict = {}
 
+        #our data
+        self.df = dataframe
+
 
         self.create_layout()
 
@@ -48,7 +51,7 @@ class MultiFrameApp(ctk.CTk):
 
         # side option bar
         #Creates a frame that will be a sidebar, nested within main_container.
-        self.side_bar = ctk.CTkFrame(main_container, width=150, corner_radius=0)
+        self.side_bar = ctk.CTkScrollableFrame(main_container, width=150, corner_radius=0)
         self.side_bar.pack(side="left", fill="y")
         #Positions the sidebar to the left side of main_container and makes it fill vertically (fill="y"
 
@@ -153,8 +156,14 @@ class MultiFrameApp(ctk.CTk):
                 self.clear_data_buttons()
                 return
         self.current_data_state = "data choices displayed"
-        columns = ["Byte 1", "Byte 2", "Byte 3"]
-        for label in columns:
+        # columns = ["Byte 1", "Byte 2", "Byte 3"]
+        # for label in columns:
+        #     btn = ctk.CTkButton(self.data_frame, text=label, fg_color= 'light blue', text_color='black', command=lambda lbl=label: self.data_choice(lbl))
+        #     btn.pack(pady=10, padx=10, fill="x")#display buttons for all columns
+        #     self.data_dict[label] = btn#save it in a dictionary
+
+        columns = self.df.columns
+        for label in columns[1::]:
             btn = ctk.CTkButton(self.data_frame, text=label, fg_color= 'light blue', text_color='black', command=lambda lbl=label: self.data_choice(lbl))
             btn.pack(pady=10, padx=10, fill="x")#display buttons for all columns
             self.data_dict[label] = btn#save it in a dictionary
@@ -299,20 +308,21 @@ class MultiFrameApp(ctk.CTk):
             widget.destroy()
 
         # #data points
-        # X = data_choice#get X
-        # Y = time_stamp
+        y = self.df[data_choice]
+        times = self.df.columns[0]
+        x = self.df[times]
 
         fig, ax = plt.subplots(figsize=(5,4))
         # Example: choose a plot type based on graph_choice
         if graph_choice == "Line":
             # For example, a simple line plot (replace with your data_choice logic)
-            ax.plot([1, 2, 3, 4], [10, 20, 25, 30], label=data_choice)
+            ax.plot(x,y, label=data_choice)
             ax.set_title(f"{data_choice} v Time")
         elif graph_choice == "Scatterplot":
-            ax.scatter([1, 2, 3, 4], [10, 20, 25, 30], label=data_choice)
+            ax.scatter(x,y, label=data_choice)
             ax.set_title(f"{data_choice} v Time")
         elif graph_choice == "Bar":
-            ax.bar([1, 2, 3, 4], [10, 20, 25, 30], label=data_choice)
+            ax.bar(x,y, label=data_choice)
             ax.set_title(f"{data_choice} v Time")
         else:
             ax.text(0.5, 0.5, "No valid graph type", ha="center")
