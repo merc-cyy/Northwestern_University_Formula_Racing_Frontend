@@ -81,6 +81,9 @@ class DAQInterface(ctk.CTk):
         launch_button.pack(pady = 50)
 
     def launch_interface(self):
+        if not self.data_file_path:
+            self.file_label.configure(text="You have to upload a file to proceed")
+
         if self.data_file_path:
             time.sleep(0.4)
             self.config_screen.destroy()

@@ -12,3 +12,4 @@ pyvenv.cfg
 dist/
 pip-selfcheck.json
 __pycache__/
+FinalDAQEnv
