@@ -3,11 +3,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
 import os
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+
+
+class CustomToolbar(NavigationToolbar2Tk):#just to redraw the zoom box
+    def __init__(self, canvas, window):
+        super().__init__(canvas, window)
+    
+    def zoom(self, *args):
+        super().zoom(*args)
+        if hasattr(self, '_zoom_rect') and self._zoom_rect is not None:
+            self._zoom_rect.set_edgecolor('black')
+            # Force a redraw so the change is visible
+            self.canvas.draw_idle()
 
 NU_PURPLE_HEX = "#4E2A84"
 
+
 class MultiFrameApp(ctk.CTk):
-    def __init__(self) -> None:
+    def __init__(self, dataframe) -> None:
         ctk.set_appearance_mode("dark")
         super().__init__()
         self.title("Multi-Frame System")
@@ -16,79 +30,147 @@ class MultiFrameApp(ctk.CTk):
 
         # current active layout
         self.current_layout = None
-        self.current_layout_button = None
-        self.current_graph_button = None
+        self.current_layout_state = None
+        self.current_graph_state = None
+        self.current_data_state = None
+
+        #dictionaries to maintain state
+        self.data_dict = {}
+        self.graph_dict = {}
+
+        #our data
+        self.df = dataframe
+
 
         self.create_layout()
 
     def create_layout(self):
         # main container
-        main_container = ctk.CTkFrame(self)
-        main_container.pack(fill="both", expand=True)
+        main_container = ctk.CTkFrame(self)#holds the grpah part and sidebar
+        main_container.pack(fill="both", expand=True)#Packs that frame into the window so it expands in both directions and fills the available space.
 
         # side option bar
-        self.side_bar = ctk.CTkFrame(main_container, width=150, corner_radius=0)
+        #Creates a frame that will be a sidebar, nested within main_container.
+        self.side_bar = ctk.CTkScrollableFrame(main_container, width=150, corner_radius=0)
         self.side_bar.pack(side="left", fill="y")
+        #Positions the sidebar to the left side of main_container and makes it fill vertically (fill="y"
 
         # main content
         self.main_content = ctk.CTkFrame(main_container)
         self.main_content.pack(side="right", fill="both", expand=True)
+        #Positions this frame to the right of the sidebar and makes it fill the remaining space both horizontally and vertically.
 
         # layout frame
         self.layout_frame = ctk.CTkFrame(self.side_bar, width=100)
         self.layout_frame.pack(side='top', pady=(0,10))
         self.master_layout_button = ctk.CTkButton(self.layout_frame, text="Layout", command=self.layout_show, fg_color=NU_PURPLE_HEX)
         self.master_layout_button.pack(pady=10, padx=10, fill="x")
+        #Packs it at the top of the sidebar, with some vertical padding at the bottom (pady=(0, 10)).
 
         #graph choices frame
         self.graph_frame = ctk.CTkFrame(self.side_bar, width=100)
-        self.graph_frame.pack(side='top')
+        self.graph_frame.pack(side='top', pady=(0,10))
         self.master_graph_button = ctk.CTkButton(self.graph_frame, text="Graphs", command=self.graph_show, fg_color=NU_PURPLE_HEX)
         self.master_graph_button.pack(pady=10, padx=10, fill="x")
+        # Places it at the top (under the layout frame, since they are stacked) of self.side_bar.
+
+        #data frame for choosing the columns to plot
+        self.data_frame = ctk.CTkFrame(self.side_bar, width=100)
+        self.data_frame.pack(side='top',pady=(0,10))
+        self.master_data_button = ctk.CTkButton(self.data_frame, text="Data", command=self.data_show, fg_color=NU_PURPLE_HEX)
+        self.master_data_button.pack(pady=10, padx=10, fill="x")
+
+        #plot buttons frame
+        self.plot_buttons_frame = ctk.CTkFrame(self.side_bar, width=100)
+        self.plot_buttons_frame.pack(side='top', pady=(0,10))
+
+        #reset button
+        self.reset_frame = ctk.CTkFrame(self.side_bar, width=100)
+        self.reset_frame.pack(side='top')
+        self.master_reset_button = ctk.CTkButton(self.reset_frame, text="Reset", command=self.reset, fg_color=NU_PURPLE_HEX)
+        self.master_reset_button.pack(pady=10, padx=10, fill="x")
+
+        #dict to store the values chosen
+        self.plotting_parameters = {}
 
         #graph state
         self.bar_graph_state = None
-        
-        self.show_four_frames()
+        self.show_four_frames()#init wiht 4 frames
 
     def layout_show(self):#display layout buttons
-            if self.current_layout_button == "layout displayed":
+            if self.current_layout_state == "layout choices displayed":
                 self.clear_layout_buttons()
-                return
-            self.current_layout_button = "layout displayed"
+                return#This makes the button behave like a toggle. If you click it again while the layouts are displayed, it will remove them.
+            self.current_layout_state = "layout choices displayed"
     
-            ctk.CTkButton(self.layout_frame, text="1-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_one_frame).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="2-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_two_frames).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="3-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_three_frames).pack(pady=10, padx=10, fill="x")
-            ctk.CTkButton(self.layout_frame, text="4-Frame Layout", fg_color= "#DADADA", text_color='black', command=self.show_four_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="1-Frame Layout", fg_color= "light blue", text_color='black', command=self.show_one_frame).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="2-Frame Layout", fg_color= "light blue", text_color='black', command=self.show_two_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="3-Frame Layout", fg_color= "light blue", text_color='black', command=self.show_three_frames).pack(pady=10, padx=10, fill="x")
+            ctk.CTkButton(self.layout_frame, text="4-Frame Layout", fg_color= "light blue", text_color='black', command=self.show_four_frames).pack(pady=10, padx=10, fill="x")
            
 
-    def clear_layout_buttons(self):
+    def clear_layout_buttons(self):#clears all buttons except the master
         for widget in self.layout_frame.winfo_children():
             if widget != self.master_layout_button:
                 widget.destroy()
-        self.current_layout_button = None
+        self.current_layout_state = None
 
-
-    def graph_show(self):#display graph buttons
-        if self.current_graph_button == "graph choices displayed":
-                self.clear_graph_buttons()
-                return
-        self.current_graph_button = "graph choices displayed"
-
-        ctk.CTkButton(self.graph_frame, text="Line Graph", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
-        ctk.CTkButton(self.graph_frame, text="Pie Chart", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
-        ctk.CTkButton(self.graph_frame, text="Bar Graph", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
-
- 
-            
     def clear_graph_buttons(self):
         for widget in self.graph_frame.winfo_children():
             if widget != self.master_graph_button:
                 widget.destroy()
-        self.current_graph_button = None
+        self.current_graph_state = None
+
+    def clear_data_buttons(self):
+        for widget in self.data_frame.winfo_children():
+            if widget != self.master_data_button:
+                widget.destroy()
+        self.current_data_state = None 
+
+    def clear_plot_buttons(self):
+        for widget in self.plot_buttons_frame.winfo_children():
+            widget.destroy()
+        # self.current_data_state = None 
 
 
+
+        
+    def graph_show(self):#display graph buttons
+        if self.current_graph_state == "graph choices displayed":
+                self.clear_graph_buttons()
+                return
+        self.current_graph_state = "graph choices displayed"
+        # ctk.CTkButton(self.graph_frame, text="Line Graph", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
+        # ctk.CTkButton(self.graph_frame, text="Scatterplot", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
+        # ctk.CTkButton(self.graph_frame, text="Bar Graph", fg_color= 'light blue', text_color='black', command=self.display_graph).pack(pady=10, padx=10, fill="x")
+        graphs= ["Bar", "Line", "Scatterplot"]
+        for label in graphs:
+            btn = ctk.CTkButton(self.graph_frame, text=label, fg_color= 'light blue', text_color='black', command=lambda lbl=label: self.graph_choice(lbl))
+            btn.pack(pady=10, padx=10, fill="x")
+            self.graph_dict[label] = btn#save it in a dictionary
+            
+
+
+    def data_show(self):#display graph buttons
+        if self.current_data_state == "data choices displayed":
+                self.clear_data_buttons()
+                return
+        self.current_data_state = "data choices displayed"
+        # columns = ["Byte 1", "Byte 2", "Byte 3"]
+        # for label in columns:
+        #     btn = ctk.CTkButton(self.data_frame, text=label, fg_color= 'light blue', text_color='black', command=lambda lbl=label: self.data_choice(lbl))
+        #     btn.pack(pady=10, padx=10, fill="x")#display buttons for all columns
+        #     self.data_dict[label] = btn#save it in a dictionary
+
+        columns = self.df.columns
+        for label in columns[1::]:
+            btn = ctk.CTkButton(self.data_frame, text=label, fg_color= 'light blue', text_color='black', command=lambda lbl=label: self.data_choice(lbl))
+            btn.pack(pady=10, padx=10, fill="x")#display buttons for all columns
+            self.data_dict[label] = btn#save it in a dictionary
+ 
+
+    
+    #Frame commands
     def show_one_frame(self):
         if self.current_layout == "1-frame":
             return  
@@ -97,8 +179,11 @@ class MultiFrameApp(ctk.CTk):
 
         frame = ctk.CTkFrame(self.main_content, corner_radius=10, border_width=2, border_color=NU_PURPLE_HEX)
         frame.pack(fill="both", expand=True, padx=5, pady=5)
-
         ctk.CTkLabel(frame, text="Single Frame", font=("Arial", 16)).pack(pady=10)
+
+        #show the button to plot one graph
+        self.clear_plot_buttons()
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 1-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(frame, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
 
     def show_two_frames(self):
         if self.current_layout == "2-frame":
@@ -114,6 +199,11 @@ class MultiFrameApp(ctk.CTk):
 
         ctk.CTkLabel(self.frame1, text="Frame A", font=("Arial", 16)).pack(pady=10)
         ctk.CTkLabel(self.frame2, text="Frame B", font=("Arial", 16)).pack(pady=10)
+
+        #show the button to plot two graphs
+        self.clear_plot_buttons()
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 1-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame1, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 2-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame2, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
 
     def show_three_frames(self):
         if self.current_layout == "3-frame":
@@ -136,6 +226,12 @@ class MultiFrameApp(ctk.CTk):
         ctk.CTkLabel(left_frame, text="Big Frame", font=("Arial", 16)).pack(pady=10)
         ctk.CTkLabel(top_right_frame, text="Top Right Frame", font=("Arial", 16)).pack(pady=10)
         ctk.CTkLabel(bottom_right_frame, text="Bottom Right Frame", font=("Arial", 16)).pack(pady=10)
+
+        #show the button to plot three graphs
+        self.clear_plot_buttons()
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 1-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(left_frame, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 2-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(top_right_frame, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 3-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(bottom_right_frame, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
 
     def show_four_frames(self):
         if self.current_layout == "4-frame":
@@ -165,69 +261,101 @@ class MultiFrameApp(ctk.CTk):
         ctk.CTkLabel(self.frame3, text="Frame 3", font=("Arial", 16)).pack(pady=10)
         ctk.CTkLabel(self.frame4, text="Frame 4", font=("Arial", 16)).pack(pady=10)
 
+        #show the button to plot four graphs
+        self.clear_plot_buttons()
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 1-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame1, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 2-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame2, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 3-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame3, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+        ctk.CTkButton(self.plot_buttons_frame, text="Graph 4-frame", fg_color= '#C0C0C0', text_color='black', command=lambda: self.plot(self.frame4, graph_choice=self.plotting_parameters['graph'], data_choice=self.plotting_parameters["column"])).pack(pady=10, padx=10, fill="x")
+
+
     def clear_main_content(self):
         for widget in self.main_content.winfo_children():
             widget.destroy()
+        self.current_layout = None
 
-    #PLOTTING
-    def bar_graph(self, file_path, x_col=None, y_col=None):
-        if self.bar_graph_state == "Bar Graph displayed":
+
+    #CHOICE COMMANDS
+    def graph_choice(self, choice):
+        #takes in the choice depending on what was selected
+        for btn in self.graph_dict.values():
+            btn.configure(fg_color="light blue")
+
+        # Change the clicked button's color to indicate selection
+        self.graph_dict[choice].configure(fg_color="dark blue")
+        self.plotting_parameters["graph"] = choice
+
+        return choice
+    
+
+    def data_choice(self, choice):
+        #takes in the choice depending on what was selected
+        for btn in self.data_dict.values():
+            btn.configure(fg_color="light blue")
+
+        # Change the clicked button's color to indicate selection
+        self.data_dict[choice].configure(fg_color="dark blue")
+        self.plotting_parameters["column"] = choice#save the choice
+        return choice
+    
+    #PLOT COMMANDS
+    def plot(self,frame, graph_choice, data_choice):
+        #takes in the frame and graph choice and data choice and plots that graph on the said frame.
+        if not graph_choice or not data_choice:
             return
-        else:    
-            self.bar_graph_state = "Bar Graph displayed"#to avaoid multiple graphs
-            data = pd.read_csv(file_path)
-            print("Data Loaded Successfully!")
+        # Clear the frame of any previous content
+        for widget in frame.winfo_children():
+            widget.destroy()
 
-            # Check for required columns
-            if x_col not in list(data.columns) or y_col not in list(data.columns):
-                raise ValueError(f"Specified columns '{x_col}' or '{y_col}' not found in the CSV file.")
-            
-            frame_bg = (0.2,0.2,0.2)
+        # #data points
+        y = self.df[data_choice]
+        times = self.df.columns[0]
+        x = self.df[times]
 
-            # Create a Matplotlib figure
-            fig, ax = plt.subplots()
-            fig.patch.set_facecolor(frame_bg)  # Set figure background to match frame
+        fig, ax = plt.subplots(figsize=(5,4))
+        # Example: choose a plot type based on graph_choice
+        if graph_choice == "Line":
+            # For example, a simple line plot (replace with your data_choice logic)
+            ax.plot(x,y, label=data_choice)
+            ax.set_title(f"{data_choice} v Time")
+        elif graph_choice == "Scatterplot":
+            ax.scatter(x,y, label=data_choice)
+            ax.set_title(f"{data_choice} v Time")
+        elif graph_choice == "Bar":
+            ax.bar(x,y, label=data_choice)
+            ax.set_title(f"{data_choice} v Time")
+        else:
+            ax.text(0.5, 0.5, "No valid graph type", ha="center")
 
-            # Customize plot appearance
-            ax.set_facecolor(frame_bg)  # Set axes background
-            ax.bar(data[x_col], data[y_col], color=NU_PURPLE_HEX)  # Bar color
-
-            # Set label, title, and grid colors
-            ax.set_xlabel(x_col, color="white")
-            ax.set_ylabel(y_col, color="white")
-            ax.set_title("Testing Title", color="white")
-
-            # Set tick colors
-            ax.tick_params(axis='x', colors='white')
-            ax.tick_params(axis='y', colors='white')
-
-            # Remove spines or set them to white
-            for spine in ax.spines.values():
-                spine.set_color("white")
-
-            bar_image_path = "Graphs/TestBarGraph.png"
-            fig.savefig(bar_image_path)
-            plt.close()
-            return bar_image_path
-
-    def display_image_on_frame(self, frame: ctk.CTkFrame, image_path=None):
-            if not os.path.exists(image_path):
-                print(f"Error: Image file {image_path} not found.")
-                return
-            image = Image.open(image_path)
-            tk_image = ctk.CTkImage(light_image=image, dark_image=image, size=(285, 285))
-            label = ctk.CTkLabel(frame, image=tk_image, text="", width=0, height = 0)
-            label.image = tk_image  # Keep a reference to avoid garbage collection
-            frame.pack_propagate(False) # prevents frame from expanding when image is packed
-            label.pack(fill ="none", padx = 0, pady = 0)
-
-
-    def display_graph(self):
-        path = 'dummy.csv'
-        graph_image = self.bar_graph(path, "name", "amount")
+        #canvas to draw figure
         
-        #to display on frame1
-        self.display_image_on_frame(self.frame1, graph_image)
+        canvas = FigureCanvasTkAgg(fig, master=frame)
+        canvas.draw()
+        canvas_widget = canvas.get_tk_widget()# returns the underlying Tkinter widget associated with the Matplotlib canvas.
+        canvas_widget.pack(side="top", fill="both", expand=True)
+        #navigation toolbar for zooming and panning
+        toolbar = CustomToolbar(canvas, frame)
+        toolbar.update()
+        # Pack the toolbar
+        toolbar.pack(side="bottom", fill="x")
+
+        #reset selections
+        for btn in self.graph_dict.values():
+            btn.configure(fg_color="light blue")
+
+        for btn in self.data_dict.values():
+            btn.configure(fg_color="light blue")
+
+
+    def reset(self):#resets the graphs and everything to initialization stage
+        self.clear_main_content()
+        self.clear_layout_buttons()
+        self.clear_graph_buttons()
+        self.clear_data_buttons()
+        self.show_four_frames()
+
+
+
 
 # Run the application
 if __name__ == "__main__":
