@@ -304,7 +304,7 @@ class MultiFrameApp(ctk.CTk):
         return choice
     
     #PLOT COMMANDS
-    def plot(self,frame, graph_choice, data_choice):
+    def plot(self, frame, graph_choice, data_choice):
         #takes in the frame and graph choice and data choice and plots that graph on the said frame.
         if not graph_choice or not data_choice:
             return
@@ -358,7 +358,7 @@ class MultiFrameApp(ctk.CTk):
         self.plotting_parameters["columns"] = []
 
 
-    def reset(self):#resets the graphs and everything to initialization stage
+    def reset(self): #resets the graphs and everything to initialization stage
         self.clear_main_content()
         self.clear_layout_buttons()
         self.clear_graph_buttons()
