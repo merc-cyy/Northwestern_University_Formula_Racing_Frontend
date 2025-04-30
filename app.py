@@ -63,3 +63,12 @@ if uploaded_file:
         st.pyplot(fig)
 else:
     st.write("Please upload a file to get started.")
+
+    # Add a map of Northwestern University with a pin on Ford Design Center
+    st.title("Welcome to Northwestern Formula Racing")
+
+    # Coordinates for Ford Design Center
+    ford_design_center_coords = [42.056459, -87.675267]
+
+    # Display the map
+    st.map(pd.DataFrame([{"lat": ford_design_center_coords[0], "lon": ford_design_center_coords[1]}]), color="#4E2A84", zoom=14)
