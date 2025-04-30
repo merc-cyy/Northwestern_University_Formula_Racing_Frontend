@@ -298,9 +298,13 @@ class MultiFrameApp(ctk.CTk):
         # Move this step to plot func to accomodate multiple lines
 
         # Change the clicked button's color to indicate selection
-        self.data_dict[choice].configure(fg_color=PURPLE_60_HEX)
+        
         if choice not in self.plotting_parameters["columns"]:
+            self.data_dict[choice].configure(fg_color=PURPLE_60_HEX)
             self.plotting_parameters["columns"].append(choice) #save the choice
+        else:
+            self.data_dict[choice].configure(fg_color="white")
+            self.plotting_parameters["columns"].remove(choice) #remove the choice
         return choice
     
     #PLOT COMMANDS
