@@ -72,3 +72,5 @@ else:
 
     # Display the map
     st.map(pd.DataFrame([{"lat": ford_design_center_coords[0], "lon": ford_design_center_coords[1]}]), color="#4E2A84", zoom=14)
+
+    
