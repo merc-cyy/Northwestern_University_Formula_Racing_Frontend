@@ -21,10 +21,6 @@ This repository contains:
 - Cycler 
 - Tkinter GUI
 
-### Technical Stack & Libraries
-
-- Interactive widgets – Selectboxes, file uploaders, buttons, session state management.
-
 ### Key Features & Technical Highlights
 #### File Ingestion & Data Binding
 
@@ -58,7 +54,7 @@ This repository contains:
 
 ### Integration with Backend Pipelines
 
-- Connects with ourterminal-driven backend to preprocess the binary data from the car (repo linked here:).
+- Connects with our terminal-driven backend to preprocess the binary data from the car ([repo linked here](https://github.com/merc-cyy/Northwestern_Formula_Racing_backend)).
 
 ### Advanced UI/UX Practices
 - Responsive layout (st.set_page_config(layout="wide")) optimized for engineering dashboards.
