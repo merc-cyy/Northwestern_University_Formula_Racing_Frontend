@@ -8,7 +8,7 @@ Every year, Northwestern University has a Formula Organization that makes an act
 I aggregated data coming from the **80** sensors on the car and visualized it for the engineering teams and later on for final competitions.
 
 This repository contains:
-1. The user-facing UI layer of our visualization tool. It handles all the data rendering and computation needed to graphically visualize all the data from the car's sensors.
+- The frontend UI layer of our visualization tool. Since the frontend is required to do a lot of calculations and graphing of data, I preferred Python over JavaScript for this project.
 
 ### Technical Skills
 - Python
