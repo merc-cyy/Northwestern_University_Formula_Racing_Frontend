@@ -5,7 +5,7 @@
 ### Background
 Every year, Northwestern University has a Formula Organization that makes an actual **Formula One** car from scratch and races the car at an annual collegiate race.
 
-My team was the Data Acquisition-Interface team. I wrote code to collect all the data coming from the **80** sensors on the car, aggregate it and visualize it for the engineering teams and later on for final competitions.
+I aggregated data coming from the **80** sensors on the car, aggregate it and visualize it for the engineering teams and later on for final competitions.
 
 This repository contains:
 1. The user-facing UI layer of our visualization tool. It handles all the data rendering and computation needed to graphically visualize all the data from the car's sensors.
